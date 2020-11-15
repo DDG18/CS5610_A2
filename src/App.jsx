@@ -1,5 +1,6 @@
 import React, { useEffect, useReducer, useContext } from 'react';
 import { SizeContext } from './Context';
+import './index.css';
 
 // let height = 10;
 // let width = 10;
@@ -102,6 +103,7 @@ const Context = React.createContext(null);
 const IndexContext = React.createContext(null);
 
 //parent component
+//=========================================APP=========================================
 export default function App() {
     const sizeContext = useContext(SizeContext);
     let height = sizeContext.state.height;
@@ -110,7 +112,8 @@ export default function App() {
     const store = {
         overallGrid: initialGrid(height, width),
         isOn: [0],
-        timeout: 100,
+        timeout: 1000,
+        // alive: 0,
     };
 
     //create reducer
@@ -122,6 +125,8 @@ export default function App() {
                 return { ...state, isOn: action.value };
             case 'timeout':
                 return { ...state, timeout: action.value };
+            // case 'alive':
+            //     return { ...state, alive: action.value };
             default:
                 return state;
         }
@@ -137,6 +142,7 @@ export default function App() {
     );
 }
 
+//=========================================GRID=========================================
 function Grid(props) {
     const context = useContext(Context);
     const sizeContext = useContext(SizeContext);
@@ -163,6 +169,19 @@ function Grid(props) {
         }
     };
 
+    const handleReset = () => {
+        let grid = context.state.overallGrid;
+        let reHeight = grid.length;
+        let reWidth = grid[0].length;
+        console.log('CHECK');
+        console.log(reHeight);
+        console.log(reWidth);
+        context.dispatch({
+            type: 'overallGrid',
+            value: initialGrid(reHeight, reWidth),
+        });
+    };
+
     const handleTime = () => {
         context.dispatch({
             type: 'timeout',
@@ -170,41 +189,33 @@ function Grid(props) {
         });
     };
 
-    return (
-        <div
-            style={{
-                position: 'fixed',
-                top: '25%',
-                left: '20%',
-            }}>
-            <Button></Button>
-            <Reset></Reset>
+    let updateALive = grid => {
+        let numOfAlive = grid
+            .reduce(function (a, b) {
+                return a.concat(b);
+            })
+            .reduce(function (a, b) {
+                return a + b;
+            });
+        return numOfAlive;
+    };
 
-            {/* Time */}
-            <div
-                style={{
-                    position: 'fixed',
-                    top: '10%',
-                    left: '15%',
-                    marginTop: 15,
-                }}>
-                change time:
-                <input
-                    style={{
-                        position: 'fixed',
-                        top: '10%',
-                        left: '21%',
-                        marginTop: 15,
-                    }}
-                    type="text"
-                    id="time"
-                    onChange={handleTime}
-                />
+    return (
+        // <div className="container">
+        <div>
+            <div className="buttonBlock">
+                <Button></Button>
+                <button onClick={() => handleReset()}>Reset!!!!</button>
             </div>
+            <div className="timeText">
+                change time:
+                <input type="text" id="time" onChange={handleTime} />
+            </div>
+
             <div
                 style={{
                     display: 'grid',
-                    gridTemplateColumns: `repeat(${width}, 30px)`,
+                    gridTemplateColumns: `repeat(${width}, 50px)`,
                     // width: "100%",
                     top: '25%',
                     left: '5%',
@@ -225,6 +236,9 @@ function Grid(props) {
                     ))
                 )}
             </div>
+            <div className="aliveCellText">
+                Number of Alive Cells: {updateALive(context.state.overallGrid)}
+            </div>
         </div>
     );
 }
@@ -244,6 +258,7 @@ function Cell() {
     let numberGrid = generateNumberGrid(grid.length, grid[0].length);
     let newGrid = copyGrid(grid, height, width);
     newGrid[rowNumber][colNumber] = cellContent === 1 ? 0 : 1; //flip the cell
+
     const handleGrid = e => {
         context.dispatch({ type: 'overallGrid', value: newGrid });
     };
@@ -257,13 +272,16 @@ function Cell() {
                     context.state.overallGrid[rowNumber][colNumber] === 1
                         ? 'black'
                         : 'white',
-                color: 'blue',
-                height: 30,
-                width: 30,
-                border: 'solid 1px black',
-                textAlign: 'center',
-                fontSize: 10,
-            }}>
+            }}
+            className="cell"
+            //     color: 'blue',
+            //     height: 30,
+            //     width: 30,
+            //     border: 'solid 1px black',
+            //     textAlign: 'center',
+            //     fontSize: 10,
+            // }}
+        >
             {number}
         </div>
     );
@@ -280,32 +298,8 @@ function Button() {
 
     return (
         <>
-            <button
-                style={{
-                    position: 'fixed',
-                    top: '10%',
-                    left: '5%',
-                    marginTop: 15,
-                }}
-                onClick={() => handleIsOn()}>
+            <button onClick={() => handleIsOn()}>
                 {isOn[0] === 1 ? 'Pause' : 'Start'}
-            </button>
-        </>
-    );
-}
-
-function Reset() {
-    return (
-        <>
-            <button
-                style={{
-                    position: 'fixed',
-                    top: '10%',
-                    left: '8%',
-                    marginTop: 15,
-                }}
-                onClick={() => initialGrid()}>
-                Reset
             </button>
         </>
     );

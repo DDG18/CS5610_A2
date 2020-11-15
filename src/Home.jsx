@@ -1,12 +1,6 @@
 import React, { useContext } from 'react';
 import { SizeContext } from './Context';
-import {
-    BrowserRouter as Router,
-    Route,
-    NavLink,
-    useHistory,
-    // Redirect,
-} from 'react-router-dom';
+import { BrowserRouter as Router, useHistory } from 'react-router-dom';
 import './index.css';
 
 export default function Home() {
@@ -27,7 +21,6 @@ export default function Home() {
     };
     const history = useHistory();
     const redirect = e => {
-        // return <Redirect to={{ pathname='/game' }} />;
         history.push('/game');
     };
     return (
