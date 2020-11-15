@@ -20,12 +20,12 @@ code {
   left: 0;
   width: 100%;
   overflow: scroll;
-  background-color:darkgray ;
+  background-color:rgb(200, 226, 158) ;
   font-size: 25px;
   float: left;
   display: block;
   color: white;
-  text-align: center;
+  text-align: left;
   padding: 14px 20px;
   text-decoration: none;
 }
@@ -104,4 +104,8 @@ font-size: 10;
 .cell:hover{
   cursor: pointer;
   background-color: rgb(160, 23, 29);
+}
+
+.mobileScreen{
+  width: 300px;
 }

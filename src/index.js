@@ -1,16 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './App.jsx';
-import Home from './Home';
-import GameRule from './GameRule';
-import { SizeContext } from './Context';
-import './index.css';
-import {
-    BrowserRouter as Router,
-    Route,
-    NavLink,
-    Switch,
-} from 'react-router-dom';
 import Parent from './Parent';
 
 ReactDOM.render(<Parent />, document.getElementById('root'));

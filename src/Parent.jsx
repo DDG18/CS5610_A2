@@ -25,8 +25,14 @@ export default function Parent() {
 
     const [state, dispatch] = useReducer(reducer, store);
 
+    let screenWidth = window.innerWidth;
+    console.log('SCREEN', screenWidth);
+
     return (
-        <React.StrictMode>
+        <React.StrictMode
+            style={{
+                width: window.innerWidth > 350 ? '100%' : '300px',
+            }}>
             <SizeContext.Provider value={{ state, dispatch }}>
                 <Router>
                     <div className="navbar">

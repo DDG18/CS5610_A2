@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { SizeContext } from './Context';
-import { BrowserRouter as Router, useHistory } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import './index.css';
 
 export default function Home() {
