@@ -1,17 +1,24 @@
-import React, { useEffect, useReducer, useContext} from 'react';
-import {SizeContext} from "./Context";
-
+import React, { useEffect, useReducer, useContext } from 'react';
+import { SizeContext } from './Context';
 
 // let height = 10;
 // let width = 10;
-const directions = [[0, 1], [0, -1], [1, 0], [-1, 0], [1, 1], [1, -1], [-1, 1], [-1, -1]];
-
+const directions = [
+    [0, 1],
+    [0, -1],
+    [1, 0],
+    [-1, 0],
+    [1, 1],
+    [1, -1],
+    [-1, 1],
+    [-1, -1],
+];
 
 //make a copy of the grid
 let copyGrid = (grid, height, width) => {
     let gridCopy = [];
     for (let i = 0; i < height; i++) {
-        gridCopy.push([])
+        gridCopy.push([]);
         for (let k = 0; k < width; k++) {
             gridCopy[i].push(grid[i][k]);
         }
@@ -20,10 +27,10 @@ let copyGrid = (grid, height, width) => {
     return gridCopy;
 };
 
-//create a number grid
+//create a number grid (1~ n*m)
 let generateNumberGrid = (row, col) => {
     let count = 1;
-    let numberGrid = []
+    let numberGrid = [];
     for (let i = 0; i < row; i++) {
         numberGrid.push([]);
         for (let k = 0; k < col; k++) {
@@ -33,14 +40,25 @@ let generateNumberGrid = (row, col) => {
     }
 
     return numberGrid;
-}
-//initial grid with values
+};
+
+//generate empty grid with specific rows and columns
+let generateEmptyGrid = (height, width) => {
+    let emptyGrid = [];
+    for (let i = 0; i < height; i++) {
+        emptyGrid.push(Array.from(Array(width), () => 0));
+    }
+    return emptyGrid;
+};
+
+//initial grid with values (1 for alive, 0 for dead)
 export let initialGrid = (height, width) => {
     let grid = generateEmptyGrid(height, width);
     for (let i = 0; i < height; i++) {
         for (let k = 0; k < width; k++) {
-            let randomNum = Math.round(Math.random() * 100 + 1);//meaning random number from 1 to 100
-            if (randomNum <= 5) {//make sure the cell has 5% to be alive
+            let randomNum = Math.round(Math.random() * 100 + 1); //meaning random number from 1 to 100
+            if (randomNum <= 5) {
+                //make sure the cell has 5% to be alive
                 grid[i][k] = 1;
             }
         }
@@ -59,10 +77,14 @@ let updateGrid = (grid, height, width) => {
             directions.forEach(([m, n]) => {
                 let newRow = i + m;
                 let newCol = k + n;
-                if (newRow >= 0 && newRow < height && newCol >= 0 && newCol < width) {
+                if (
+                    newRow >= 0 &&
+                    newRow < height &&
+                    newCol >= 0 &&
+                    newCol < width
+                ) {
                     livingNeighbors += grid[newRow][newCol];
                 }
-
             });
             if (grid[i][k] === 1) {
                 if (livingNeighbors < 2 || livingNeighbors > 3) {
@@ -74,232 +96,216 @@ let updateGrid = (grid, height, width) => {
         }
     }
     return newGrid;
-}
-
-//generate empty grid with specific rows and columns
-let generateEmptyGrid = (height, width) => {
-    let emptyGrid = [];
-    for (let i = 0; i < height; i++) {
-        emptyGrid.push(Array.from(Array(width), () => 0));
-    }
-    return emptyGrid;
 };
 
-
-// //create store，note the level could matter
-// const store = {
-//     overallGrid: initialGrid(),
-//     isOn: [0],
-//     timeout:100
-// }
-// //create reducer
-// const user = (state, action) => {
-//     switch (action.type) {
-//         case 'overallGrid':
-//             return {...state, overallGrid: action.value};
-//         case 'isOn':
-//             return {...state, isOn: action.value};
-//         case 'timeout':
-//             return {...state, timeout: action.value};
-//         default:
-//             return state;
-//     }
-// }
 const Context = React.createContext(null);
 const IndexContext = React.createContext(null);
 
-
 //parent component
-export default function App(){
-    const sizeContext = useContext(SizeContext)
-    let height = sizeContext.state.height
-    let width = sizeContext.state.width
+export default function App() {
+    const sizeContext = useContext(SizeContext);
+    let height = sizeContext.state.height;
+    let width = sizeContext.state.width;
     //create store，note the level could matter
     const store = {
         overallGrid: initialGrid(height, width),
         isOn: [0],
-        timeout:100
-    }
-//create reducer
+        timeout: 100,
+    };
+
+    //create reducer
     const user = (state, action) => {
         switch (action.type) {
             case 'overallGrid':
-                return {...state, overallGrid: action.value};
+                return { ...state, overallGrid: action.value };
             case 'isOn':
-                return {...state, isOn: action.value};
+                return { ...state, isOn: action.value };
             case 'timeout':
-                return {...state, timeout: action.value};
+                return { ...state, timeout: action.value };
             default:
                 return state;
         }
-    }
-    const [state, dispatch] = useReducer(user, store)
+    };
+    const [state, dispatch] = useReducer(user, store);
 
-    return(
+    return (
         <div>
-        <Context.Provider value={{state, dispatch}}>
-            <Grid />
-        </Context.Provider >
+            <Context.Provider value={{ state, dispatch }}>
+                <Grid />
+            </Context.Provider>
         </div>
-    )
+    );
 }
 
 function Grid(props) {
-    const context = useContext(Context)
-    const sizeContext = useContext(SizeContext)
-    let height = sizeContext.state.height
-    let width = sizeContext.state.width
-    console.log(sizeContext)
-
+    const context = useContext(Context);
+    const sizeContext = useContext(SizeContext);
+    let height = sizeContext.state.height;
+    let width = sizeContext.state.width;
+    console.log(sizeContext);
 
     useEffect(() => {
-        if (context.state.isOn[0]=== 1) {
+        if (context.state.isOn[0] === 1) {
             gameStart();
         }
-    }, [context.state])
-
-
-
+    }, [context.state]);
 
     const gameStart = () => {
-        if (context.state.isOn[0]===1) {
-            // setGrid(grid => {
-            //     let newGrid = updateGrid(grid);
-            //
-            //     return newGrid
-            // });//BUG: grid need to return new grid
-            const id = (e)=>{
-                context.dispatch({type: 'overallGrid', value: updateGrid(context.state.overallGrid, height, width)})
-            }
+        if (context.state.isOn[0] === 1) {
+            const id = e => {
+                context.dispatch({
+                    type: 'overallGrid',
+                    value: updateGrid(context.state.overallGrid, height, width),
+                });
+            };
             id();
             setTimeout(gameStart, context.state.timeout);
         }
-
     };
 
     const handleTime = () => {
-        context.dispatch({type: 'timeout', value: parseInt(document.getElementById("time").value)})
-    }
+        context.dispatch({
+            type: 'timeout',
+            value: parseInt(document.getElementById('time').value),
+        });
+    };
 
     return (
-        <div style={{
-            position: 'fixed',
-            top: "25%",
-            left: "20%",
-
-        }}>
-            <Button>
-
-            </Button>
-            <div style={{
-                position: "fixed",
-                top: "10%",
-                left: "15%",
-                marginTop: 15
-            }}>change time:</div>
-            <input style={{
-            position: "fixed",
-            top: "10%",
-            left: "30%",
-            marginTop: 15
-            }}
-             type="text" id="time" onChange={handleTime}/>
-            <div style={{
-                display: "grid",
-                gridTemplateColumns: `repeat(${width}, 30px)`,
-                // width: "100%",
-                top:"25%",
-                left:"1%",
-                position:"fixed",
-                width: 400,
-                height: 400,
-                overflowX: "scroll",
-                overflowY: "scroll"
-
-
+        <div
+            style={{
+                position: 'fixed',
+                top: '25%',
+                left: '20%',
             }}>
-                {context.state.overallGrid.map((row, rowIndex) =>
-                    row.map((value, colIndex) =>
+            <Button></Button>
+            <Reset></Reset>
 
-                        <div>
-                            <IndexContext.Provider value={{row: rowIndex, col: colIndex}}>
-                                <Cell/>
+            {/* Time */}
+            <div
+                style={{
+                    position: 'fixed',
+                    top: '10%',
+                    left: '15%',
+                    marginTop: 15,
+                }}>
+                change time:
+                <input
+                    style={{
+                        position: 'fixed',
+                        top: '10%',
+                        left: '21%',
+                        marginTop: 15,
+                    }}
+                    type="text"
+                    id="time"
+                    onChange={handleTime}
+                />
+            </div>
+            <div
+                style={{
+                    display: 'grid',
+                    gridTemplateColumns: `repeat(${width}, 30px)`,
+                    // width: "100%",
+                    top: '25%',
+                    left: '5%',
+                    position: 'fixed',
+                    width: 400,
+                    height: 400,
+                    overflowX: 'scroll',
+                    overflowY: 'scroll',
+                }}>
+                {context.state.overallGrid.map((row, rowIndex) =>
+                    row.map((value, colIndex) => (
+                        <div key={colIndex}>
+                            <IndexContext.Provider
+                                value={{ row: rowIndex, col: colIndex }}>
+                                <Cell />
                             </IndexContext.Provider>
                         </div>
-                    )
+                    ))
                 )}
-
-
             </div>
-
         </div>
     );
-};
+}
 
 function Cell() {
-    const context = useContext(Context)
-    useEffect(() => {
+    const context = useContext(Context);
+    useEffect(() => {}, [context.state]);
+    const indexContext = useContext(IndexContext);
+    const sizeContext = useContext(SizeContext);
+    let height = sizeContext.state.height;
+    let width = sizeContext.state.width;
+    const grid = context.state.overallGrid;
 
-    }, [context.state])
-    const indexContext = useContext(IndexContext)
-    const sizeContext = useContext(SizeContext)
-    let height = sizeContext.state.height
-    let width = sizeContext.state.width
-    const grid = context.state.overallGrid
-
-    let rowNumber = indexContext.row
-    let colNumber = indexContext.col
-    let cellContent = context.state.overallGrid[rowNumber][colNumber]
+    let rowNumber = indexContext.row;
+    let colNumber = indexContext.col;
+    let cellContent = context.state.overallGrid[rowNumber][colNumber]; // 0 or 1
     let numberGrid = generateNumberGrid(grid.length, grid[0].length);
     let newGrid = copyGrid(grid, height, width);
-    newGrid[rowNumber][colNumber] = cellContent === 1 ? 0 : 1;
+    newGrid[rowNumber][colNumber] = cellContent === 1 ? 0 : 1; //flip the cell
     const handleGrid = e => {
-        context.dispatch({type: 'overallGrid', value: newGrid})
-    }
+        context.dispatch({ type: 'overallGrid', value: newGrid });
+    };
 
-    let number = numberGrid[rowNumber][colNumber];
+    let number = numberGrid[rowNumber][colNumber]; //number on cell
     return (
-
-        <div onClick={handleGrid}
-             style={{
-                 backgroundColor: context.state.overallGrid[rowNumber][colNumber] === 1 ? "black" : "white",
-                 color: "blue",
-                 height: 30,
-                 width: 30,
-                 border: "solid 1px black",
-                 textAlign: "center",
-             }}>
+        <div
+            onClick={handleGrid}
+            style={{
+                backgroundColor:
+                    context.state.overallGrid[rowNumber][colNumber] === 1
+                        ? 'black'
+                        : 'white',
+                color: 'blue',
+                height: 30,
+                width: 30,
+                border: 'solid 1px black',
+                textAlign: 'center',
+                fontSize: 10,
+            }}>
             {number}
         </div>
     );
 }
 
-
-
-
 function Button() {
-    const context = useContext(Context)
+    const context = useContext(Context);
     let isOn = context.state.isOn;
 
-
     const handleIsOn = e => {
-        isOn[0] = isOn[0] === 1 ? 0 : 1
-        context.dispatch({type: 'isOn', value: isOn})
-
-    }
-
+        isOn[0] = isOn[0] === 1 ? 0 : 1;
+        context.dispatch({ type: 'isOn', value: isOn });
+    };
 
     return (
         <>
-            <button style={{
-                position: "fixed",
-                top: "10%",
-                left: "5%",
-                marginTop: 15
-            }}
-                    onClick={() => handleIsOn()
-                    }>
-                {isOn[0]===1 ? "pause" : "start"}
+            <button
+                style={{
+                    position: 'fixed',
+                    top: '10%',
+                    left: '5%',
+                    marginTop: 15,
+                }}
+                onClick={() => handleIsOn()}>
+                {isOn[0] === 1 ? 'Pause' : 'Start'}
+            </button>
+        </>
+    );
+}
+
+function Reset() {
+    return (
+        <>
+            <button
+                style={{
+                    position: 'fixed',
+                    top: '10%',
+                    left: '8%',
+                    marginTop: 15,
+                }}
+                onClick={() => initialGrid()}>
+                Reset
             </button>
         </>
     );
